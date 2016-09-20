@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data</title>
+
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="css/style.css" rel="stylesheet">
+
+  <script src="js/react.js"></script>
+  <script src="js/react-dom.js"></script>
+  <script src="js/browser.min.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    <div id="content"></div>
+  </div>
+  <script type="text/babel">
+
+  // ** JSX code goes here! **
+  
+  var inArray = '';
+  
+  var App = React.createClass({
+    getInitialState: function() {
+      return {
+        inputText: ''
+      };
+    },
+
+    handleUserInput: function(inputText) {
+       this.setState({
+         inputText: inputText
+       });
+     },
+
+    render: function() {
+      return (
+        <div className="app">
+			<div className="col-md-6">
+				<DisplayResult 
+					resultText={this.state.inputText}
+				/>
+			</div>
+			<div className="col-md-6">
+				<InputText 
+					inputText={this.state.inputText}
+					onUserInput={this.handleUserInput}
+				/>
+			</div>
+        </div>
+      );
+    }
+  });
+  
+  var InputText = React.createClass({
+	  displayName: 'InputText',
+	  getInitialState: function() { 
+		return {
+		  visibleClearBtn: false
+		};
+	  },
+	  handleChange: function(event) {
+		//this.setState({value: event.target.value});
+		//console.log('event.target.val: ' + event.target.value)
+		
+		this.props.onUserInput(
+			this.refs.initialTextInput.value
+		);
+		
+		// Show clear button
+		this.setState({visibleClearBtn: true});
+	  },
+	  handleClearClick: function() {		
+		this.refs.initialTextInput.value = '';
+		
+		// Hide clear button
+		this.setState({visibleClearBtn: false});
+	  },
+	  render: function() {
+		var visible = this.state.visibleClearBtn;
+		return (
+		<div>
+		  <h4>Initial data: </h4>
+		  <form>
+		  <div className="form-group">
+			<textarea 
+				name="textarea" 
+				className="form-control"
+				value={this.state.value} 
+				ref="initialTextInput"
+				onChange={this.handleChange}
+				rows="14"></textarea>
+			</div>
+			<div className="form-group">
+				<button type="button" className={'btn btn-default ' + (visible ? '': 'none')} onClick={this.handleClearClick}>Clear</button>
+			</div>
+		  </form>
+		</div>
+		);
+	  }
+	});
+	
+	var DisplayResult = React.createClass({
+		render: function() {
+			
+			var result = '';
+			var total = 0;
+		
+			var originalText = this.props.resultText;
+			if (originalText === undefined) {
+				result = '';
+			} else {
+				var stringArray = originalText.replace(/\r\n/g,"\n").split("\n");
+				
+				// Check duplicates algorithm 1
+				var counts = [];
+				for(var i = 0; i <= stringArray.length; i++) {
+					if(counts[stringArray[i]] === undefined) {
+						counts[stringArray[i]] = 1;
+					} else {
+						result = result + stringArray[i] + ' \t in line ' + i + '\n';
+						total++;
+					}
+				}
+				
+				
+				// Algorithm 2 (using Hashtables, faster)
+				// source http://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array/9229821#9229821
+				//var seen = {};
+				//return stringArray.filter(function(item) {
+				//	return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+				//});
+			}
+				
+			return (
+				<div>
+					<h4>Duplicates: <span className="badge">{total}</span></h4>
+					<pre>{result}</pre>
+				</div>
+			);
+		}
+	});
+
+  
+
+  ReactDOM.render(
+    <App />,
+    document.getElementById('content')
+  );
+
+  </script>
+</body>
+</html>
